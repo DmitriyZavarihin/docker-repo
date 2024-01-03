@@ -1,0 +1,9 @@
+description: rails_tiny Helm chart for Kubernetes.
+home: https://gitlab.com/DmitriyZavarihin/rails_tiny
+maintainers:
+- email: have.os@bk.ru
+  name: Dmitriy Zavarihin
+name: rails_tiny
+sources:
+- https://gitlab.com/DmitriyZavarihin/rails_tiny
+version: 1.0.0

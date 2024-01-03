@@ -1,0 +1,132 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  gcePersistentDisk:
+    pdName: postgres-disk
+    fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
+  volumeName: postgres-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+  clusterIP: None
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-configmap
+data:
+  pre-stop.sh: |-
+    #!/bin/bash
+    echo export FOO=BAR
+    $ eval "$(./set-vars2.sh)"
+    $ echo "$FOO"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 2
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      initContainers:
+        - name: init-configs
+          image: busybox:1.35.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              cat <<EOF >> /opt/data/bf.sh
+              #!/bin/bash
+              echo export FOO=BAR
+              $ eval "$(./set-vars2.sh)"
+              $ echo "$FOO"
+              EOF
+              chmod +x /opt/data/bf.sh
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+              subPath: data
+      containers:
+        - name: postgres
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - source /pre-stop.sh
+          image: bitnami/postgresql:16.0.0
+          env:
+            - name: POSTGRES_DB
+              value: 'videodb_development'
+            - name: POSTGRES_USER
+              value: 'cain'
+            - name: POSTGRES_PASSWORD
+              value: '1955'
+            - name: MASTER_PORT_NUMBER
+              value: '5432'
+            - name: password
+              value: '1955'
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - name: postgres-pv-claim
+              mountPath: /var/lib/postgresql/data
+            - name: data
+              mountPath: /opt/data
+              subPath: data
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: hooks-scripts
+          configMap:
+            name: postgres-configmap
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-pv-claim
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

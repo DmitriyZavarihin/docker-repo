@@ -1,0 +1,11 @@
+<div>
+  <%= link_to articles_path, class: 'is-size-4 has-text-primary' do %>
+    <i class="fa-regular fa-circle-left"></i>
+    Back to articles
+  <% end %>
+</div>
+<div class='box'>
+  <h1 class='title'>New Article in TinyMCE editor</h1>
+  <%= render 'form', article: @article %>
+  <br>
+</div>

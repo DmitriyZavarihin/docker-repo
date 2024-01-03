@@ -1,0 +1,24 @@
+<p style="color: green"><%= notice %></p>
+<div class='container-flex'>
+  <h1 class='title has-text-centered has-text-primary-dark'>Articles</h1>
+  <div id="articles">
+    <% if @pagy.pages > 1 %>
+      <div class="level-right py-2">
+        <nav class='pagination is-rounded is-small'>
+          <%== pagy_bulma_nav(@pagy, size: [1, 2, 2, 1], pagy_id: 'pagy_nav') %>
+        </nav>
+      </div>
+    <% end %>
+    <% @articles.each do |article| %>
+      <%= render article %>
+      <p class="control has-icons-left">
+        <%= link_to article, class: 'is-size-4 has-text-primary' do %>
+          <i class="fas fa-search" aria-hidden="true"></i>
+          Show article
+        <% end %>
+      </p>
+    <% end %>
+  </div>
+  <%= link_to 'New article without turbo', new_article_path, data: { turbo: false }, class: 'button is-success is-outlined' %>
+  <%= link_to 'New article with turbo', new_article_path, class: 'button is-danger is-outlined' %>
+</div>

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails
+  labels:
+    app.kubernetes.io/component: web
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: web
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: web
+        app: postgres
+    spec:
+      containers:
+        - name: rails
+          image: ivan1955/rails:v02
+          ports:
+            - containerPort: 80
+              name: http
+          envFrom:
+            - secretRef:
+                name: postgres

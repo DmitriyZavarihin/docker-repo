@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  gcePersistentDisk:
+    pdName: postgres-disk
+    fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
+  volumeName: postgres-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - name: postgres-pv-claim
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-pv-claim
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres1
+spec:
+  serviceName: postgres1
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres1
+  template:
+    metadata:
+      labels:
+        app: postgres1
+    spec:
+      containers:
+        - name: postgres1
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: postgres1
+          volumeMounts:
+            - name: postgres-pv-claim
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-pv-claim
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+
+
+
+#export PGUSER=postgres
+
+#psql <<- EOSQL
+#    CREATE USER docker;
+#    CREATE DATABASE docker;
+#    GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
+#EOSQL
+
+#psql <<- EOSQL
+#    CREATE USER odoo;
+#    CREATE DATABASE odoo;
+#    GRANT ALL PRIVILEGES ON DATABASE odoo TO odoo;
+#EOSQL
+
+#ping postgres-1.postgres.default.svc.cluster.local
+
+#psql -h localhost -U postgres
+
+#vim /var/lib/postgresql/data/pgdata/pg_hba.conf
+
+
+helm install my-release oci://registry-1.docker.io/bitnamicharts/postgresql-ha \                                                                            ─╯
+    --set postgresql.password=1955 \
+    --set postgresql.repmgrPassword=1955 \
+    --set postgresql.replicaCount=2
+
+helm install my-release oci://registry-1.docker.io/bitnamicharts/postgresql-ha \
+    --set postgresql.username=cain \
+    --set postgresql.password=1955 \
+    --set postgresql.repmgrPassword=[REPMGR_PASSWORD] \
+    --det postgresql.database=db2 \
+    --set postgresql.postgresqlDatabase=db1
+
+postgresql.configuration
+
+helm install my-release oci://registry-1.docker.io/bitnamicharts/postgresql-ha \
+    --set postgresql.username=cain \
+    --set postgresql.password=1955 \
+    --set postgresql.database=db2 \
+    --set postgresql.configuration=PostgreSQL

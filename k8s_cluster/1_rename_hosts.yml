@@ -1,0 +1,44 @@
+- name: rename host master
+  hosts: master
+  tasks:
+  - name: rename host
+    ansible.builtin.shell: "hostnamectl set-hostname master && systemctl restart systemd-hostnamed"
+    become: true
+
+  - name: add host in mashine
+    ansible.builtin.blockinfile:
+      path: "/etc/hosts"
+      block: |
+        {{ ip_master }} master
+        {{ ip_worker1 }} worker1
+        {{ ip_worker2 }} worker2
+
+- name: rename host worker1
+  hosts: worker1
+  tasks:
+  - name: rename host
+    ansible.builtin.shell: "hostnamectl set-hostname worker1 && systemctl restart systemd-hostnamed"
+    become: true
+
+  - name: add host in mashine
+    ansible.builtin.blockinfile:
+      path: "/etc/hosts"
+      block: |
+        {{ ip_master }} master
+        {{ ip_worker1 }} worker1
+        {{ ip_worker2 }} worker2
+
+- name: rename host worker2
+  hosts: worker2
+  tasks:
+  - name: rename host
+    ansible.builtin.shell: "hostnamectl set-hostname worker2 && systemctl restart systemd-hostnamed"
+    become: true
+
+  - name: add host in mashine
+    ansible.builtin.blockinfile:
+      path: "/etc/hosts"
+      block: |
+        {{ ip_master }} master
+        {{ ip_worker1 }} worker1
+        {{ ip_worker2 }} worker2

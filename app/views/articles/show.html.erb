@@ -1,0 +1,15 @@
+<p style="color: green"><%= notice %></p>
+<h1 class='title has-text-centered'>Show article</h1>
+<%= render @article %>
+<div>
+  <%= link_to edit_article_path(@article), data: { turbo: false }, class: 'is-size-4 has-text-primary' do %>
+    Edit article
+  <% end %>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+  <%= link_to articles_path, class: 'is-size-4 has-text-primary' do %>
+    Back to Articles
+  <% end %>
+  <%= button_to 'Destroy this article', @article, method: :delete, class: 'button is-danger is-outlined' %>
+</div>

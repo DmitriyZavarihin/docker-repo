@@ -1,0 +1,14 @@
+<h1 class='title has-text-centered'>Editing article</h1>
+<div>
+  <%= link_to article_path(@article), data: { turbo: false }, class: 'is-size-4 has-text-primary' do %>
+    Show
+  <% end %>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+  <i class="fa-solid fa-ellipsis-vertical"> </i>
+  <%= link_to articles_path, class: 'is-size-4 has-text-primary' do %>
+    Back to Articles
+  <% end %>
+  <%= render 'form', article: @article %>
+  <br>
+</div>

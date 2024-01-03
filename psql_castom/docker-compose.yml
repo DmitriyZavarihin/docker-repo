@@ -1,0 +1,41 @@
+version: '3'
+services:
+  master_db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: master_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgresql_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=${MODE_MASTER}
+      - POSTGRESQL_REPLICATION_USER=${REPLICATION_USER}
+      - POSTGRESQL_REPLICATION_PASSWORD=${REPLICATION_PASSWORD}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - POSTGRESQL_MASTER_HOST=${POSTGRES_HOST}               #slave
+      - POSTGRESQL_MASTER_PORT_NUMBER=${MASTER_PORT_NUMBER}   #slave
+  slave_db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: slave_db
+    ports:
+      - '5433:5432'
+    depends_on:
+      - master_db
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=${MODE_SLAVE}
+      - POSTGRESQL_REPLICATION_USER=${REPLICATION_USER}
+      - POSTGRESQL_REPLICATION_PASSWORD=${REPLICATION_PASSWORD}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}                    #master
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}                      #master
+      - POSTGRESQL_MASTER_HOST=${POSTGRES_HOST}
+      - POSTGRESQL_MASTER_PORT_NUMBER=${MASTER_PORT_NUMBER}
+
+volumes:
+  postgresql_master_data:

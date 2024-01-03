@@ -1,0 +1,12 @@
+<div id="<%= dom_id article %>">
+  <div class='box'>
+    <h2 class='title is-5'>Title:</h2>
+    <p>
+      <%= article.title %>
+    </p>
+    <h2 class='title is-5'>Body:</h2>
+    <p>
+      <%= article.body.html_safe %>
+    </p>
+  </div>
+</div>

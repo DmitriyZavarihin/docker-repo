@@ -1,0 +1,17 @@
+- name: init workers
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: copy token
+    ansible.builtin.shell: kubeadm token create --print-join-command
+    register: output
+    when: ansible_hostname == 'master'
+
+  - name: create worker node
+    ansible.builtin.shell: "{{ output.stdout_lines | join('\n') }}"
+    delegate_to: "{{ item }}"
+    loop:
+      - worker1
+      - worker2
+    when: ansible_hostname == 'master'

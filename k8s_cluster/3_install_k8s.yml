@@ -1,0 +1,21 @@
+- name: install kubelet, kubeadm, kubectl (all)
+  hosts: all
+  tasks:
+  - name: add key kubelet, kubeadm
+    ansible.builtin.apt_key:
+      url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+
+  - name: Add the repository kubelet, kubeadm, kubectl
+    apt_repository:
+      repo: 'deb https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /'
+      state: present
+
+  - name: install in worker - kubelet, kubeadm
+    ansible.builtin.apt: name={{ item }} state=latest update_cache=true
+    loop: [kubelet, kubeadm]
+
+- name: install kubectl master
+  hosts: master
+  tasks:
+  - name: install in master - kubectl
+    ansible.builtin.apt: name=kubectl state=latest update_cache=true

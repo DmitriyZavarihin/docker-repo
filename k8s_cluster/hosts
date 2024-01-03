@@ -1,0 +1,17 @@
+master ansible_host=master ansible_user=root
+worker1 ansible_host=worker1 ansible_user=root
+worker2 ansible_host=worker2 ansible_user=root
+
+[workers]
+worker1 ansible_host=worker1 ansible_user=root
+worker2 ansible_host=worker2 ansible_user=root
+
+[all_servers]
+master ansible_host=master ansible_user=root
+worker1 ansible_host=worker1 ansible_user=root
+worker2 ansible_host=worker2 ansible_user=root
+
+[all_servers:vars]
+ip_master=193.149.187.85
+ip_worker1=193.149.185.223
+ip_worker2=206.188.197.141

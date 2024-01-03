@@ -1,0 +1,4 @@
+#!/usr/local/bin/zsh
+
+arg_parts=(${@//\'/})
+rubocop -s ${arg_parts[1]} -f json --force-exclusion --config ../.rubocop.yml
